@@ -1,8 +1,9 @@
 import {products,faqs} from './data.js';
 
-// Origen local deliberado: no se ha autorizado ni realizado una publicación.
-// Antes de un lanzamiento real, reemplazar por el dominio HTTPS confirmado y regenerar.
-export const SEO_ORIGIN='http://127.0.0.1:4173';
+function setting(key,meta,fallback){if(typeof document!=='undefined')return document.querySelector(`meta[name="${meta}"]`)?.content||fallback;return typeof process!=='undefined'&&process.env[key]||fallback}
+export const BASE_PATH=setting('BASE_PATH','site-base','').replace(/\/+$/,'');
+export const SEO_ORIGIN=setting('SEO_ORIGIN','site-origin','http://127.0.0.1:4173').replace(/\/+$/,'');
+export const siteUrl=path=>SEO_ORIGIN+BASE_PATH+path;
 export const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const page=(path,name,keyword,h1,title,description,type,purpose,indexable,candidates,reason)=>({path,name,keyword,h1,title,description,type,purpose,indexable,candidates,reason});
 export const pages=[
@@ -28,7 +29,7 @@ export function normalizePath(path){return path.replace(/\/+$/,'')||'/'}
 export const pageFor=path=>pages.find(p=>p.path===normalizePath(path))||{path:normalizePath(path),name:'Página no encontrada',h1:'Página no encontrada',title:'Página no encontrada | Dulce Momento',description:'La página solicitada no existe. Regresa al catálogo de kekes de Dulce Momento.',indexable:false,type:'Error'};
 export function structuredData(meta){
  if(!meta.indexable)return null;
- const url=SEO_ORIGIN+meta.path;
+ const url=siteUrl(meta.path);
  const type=meta.path==='/catalogo'?'CollectionPage':meta.path==='/contacto'?'ContactPage':meta.path==='/nosotros'?'AboutPage':'WebPage';
  const graph=[{'@type':type,'@id':url+'#page',url,name:meta.title,description:meta.description,inLanguage:'es-PE'}];
  if(meta.path!=='/'){
@@ -44,7 +45,7 @@ export function structuredData(meta){
  // Sin Product/Offer/Review/AggregateRating/LocalBusiness: catálogo y opiniones simulados.
  return {'@context':'https://schema.org','@graph':graph};
 }
-export function seoHead(meta){const e=escapeHtml;const url=SEO_ORIGIN+meta.path;const structured=structuredData(meta);return `<title>${e(meta.title)}</title>
+export function seoHead(meta){const e=escapeHtml;const url=siteUrl(meta.path);const structured=structuredData(meta);return `<title>${e(meta.title)}</title>
 <meta name="description" content="${e(meta.description)}">
 <meta name="robots" content="${meta.indexable?'index,follow':'noindex,follow'}">
 <link rel="canonical" href="${e(url)}">
@@ -56,8 +57,8 @@ export function applySeo(path){const meta=pageFor(path);document.title=meta.titl
  const set=(selector,key,value,content)=>{let n=document.head.querySelector(selector);if(!n){n=document.createElement('meta');n.setAttribute(key,value);document.head.append(n)}n.content=content};
  set('meta[name="description"]','name','description',meta.description);
  set('meta[name="robots"]','name','robots',meta.indexable?'index,follow':'noindex,follow');
- let canonical=document.head.querySelector('link[rel="canonical"]');if(!canonical){canonical=document.createElement('link');canonical.rel='canonical';document.head.append(canonical)}canonical.href=SEO_ORIGIN+meta.path;
- for(const [k,v] of Object.entries({'og:type':'website','og:site_name':'Dulce Momento','og:locale':'es_PE','og:title':meta.title,'og:description':meta.description,'og:url':SEO_ORIGIN+meta.path}))set(`meta[property="${k}"]`,'property',k,v);
+ let canonical=document.head.querySelector('link[rel="canonical"]');if(!canonical){canonical=document.createElement('link');canonical.rel='canonical';document.head.append(canonical)}canonical.href=siteUrl(meta.path);
+ for(const [k,v] of Object.entries({'og:type':'website','og:site_name':'Dulce Momento','og:locale':'es_PE','og:title':meta.title,'og:description':meta.description,'og:url':siteUrl(meta.path)}))set(`meta[property="${k}"]`,'property',k,v);
  for(const [k,v] of Object.entries({'twitter:card':'summary','twitter:title':meta.title,'twitter:description':meta.description}))set(`meta[name="${k}"]`,'name',k,v);
  document.querySelector('#structured-data')?.remove();const data=structuredData(meta);if(data){const el=document.createElement('script');el.id='structured-data';el.type='application/ld+json';el.textContent=JSON.stringify(data);document.head.append(el)}
  return meta;
