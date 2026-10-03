@@ -13,7 +13,7 @@ Tras cambiar rutas o textos de productos: `node prepare-routes.mjs`. Verificar: 
 
 ## Probar
 
-Cupones DULCE10 y MOMENTO15. Tarjeta exclusivamente de prueba: 4242 4242 4242 4242, vencimiento 12/30, CVV 123. Yape usa QR no operativo y número ficticio. Pago al recoger solo aparece para recojo. Fechas desde dos días después de la fecha local.
+Cupones DULCE10 y MOMENTO15. Tarjeta exclusivamente de prueba: 4242 4242 4242 4242, vencimiento 12/30, CVV 123. Yape usa QR no operativo y número ficticio. Pago al recoger solo aparece para recojo. Fechas desde cuatro horas después de la hora local.
 
 ## Persistencia y límites
 
