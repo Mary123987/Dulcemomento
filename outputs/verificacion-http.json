@@ -1,0 +1,147 @@
+{
+  "routes": [
+    {
+      "path": "/",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/catalogo",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/personalizados",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/nosotros",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/contacto",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/ayuda",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/carrito",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/checkout",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/pedido-confirmado",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/favoritos",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/terminos",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/privacidad",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/productos/keke-chocolate",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/productos/keke-vainilla",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/productos/keke-red-velvet",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/productos/keke-zanahoria",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/productos/keke-fresa",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/productos/keke-chocolate-y-fudge",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/productos/keke-limon",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/productos/keke-naranja",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/productos/keke-tres-leches",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/productos/keke-chocolate-blanco",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/productos/keke-frutos-rojos",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/productos/keke-personalizado",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/productos/keke-mini-chocolate",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/productos/keke-mini-vainilla",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/productos/keke-especial-para-cumpleanos",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/productos/keke-especial-para-aniversario",
+      "status": 200,
+      "initialHtml": true
+    }
+  ],
+  "missingRoutes": 404,
+  "normalization": 308,
+  "queryCanonical": true
+}

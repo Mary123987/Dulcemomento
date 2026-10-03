@@ -1,0 +1,231 @@
+{
+  "fecha": "2026-10-03",
+  "paginas": 28,
+  "sitemap": 22,
+  "results": [
+    {
+      "ruta": "/",
+      "title": "Kekes artesanales en Lima | Dulce Momento",
+      "h1": "Kekes artesanales en Lima para cada momento.",
+      "indexacion": "index,follow",
+      "imagenes": 6,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/catalogo",
+      "title": "Catálogo de kekes artesanales | Dulce Momento",
+      "h1": "Catálogo de kekes artesanales.",
+      "indexacion": "index,follow",
+      "imagenes": 16,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/personalizados",
+      "title": "Diseño de kekes personalizados | Dulce Momento",
+      "h1": "Diseño de kekes personalizados a tu manera",
+      "indexacion": "index,follow",
+      "imagenes": 3,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/nosotros",
+      "title": "Dulce Momento: repostería artesanal | Nosotros",
+      "h1": "Dulce Momento: repostería artesanal con dedicación",
+      "indexacion": "index,follow",
+      "imagenes": 0,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/contacto",
+      "title": "Contacto Dulce Momento | Consultas y WhatsApp",
+      "h1": "Contacto Dulce Momento: cuéntanos tu consulta",
+      "indexacion": "index,follow",
+      "imagenes": 0,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/ayuda",
+      "title": "Delivery y recojo de kekes | Ayuda Dulce Momento",
+      "h1": "Delivery y recojo de kekes: guía de tu pedido",
+      "indexacion": "index,follow",
+      "imagenes": 0,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/carrito",
+      "title": "Carrito de compras | Dulce Momento",
+      "h1": "Tu carrito de compras",
+      "indexacion": "noindex,follow",
+      "imagenes": 0,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/checkout",
+      "title": "Finalizar pedido | Dulce Momento",
+      "h1": "Finaliza tu pedido",
+      "indexacion": "noindex,follow",
+      "imagenes": 0,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/pedido-confirmado",
+      "title": "Confirmación de pedido | Dulce Momento",
+      "h1": "Confirmación de tu pedido",
+      "indexacion": "noindex,follow",
+      "imagenes": 0,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/favoritos",
+      "title": "Tus kekes favoritos | Dulce Momento",
+      "h1": "Tus kekes favoritos",
+      "indexacion": "noindex,follow",
+      "imagenes": 0,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/terminos",
+      "title": "Términos de la demostración | Dulce Momento",
+      "h1": "Términos de la demostración",
+      "indexacion": "noindex,follow",
+      "imagenes": 0,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/privacidad",
+      "title": "Privacidad de tus datos | Dulce Momento",
+      "h1": "Privacidad de tus datos",
+      "indexacion": "noindex,follow",
+      "imagenes": 0,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/productos/keke-chocolate",
+      "title": "Keke de chocolate | Dulce Momento",
+      "h1": "Keke de chocolate",
+      "indexacion": "index,follow",
+      "imagenes": 7,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/productos/keke-vainilla",
+      "title": "Keke de vainilla | Dulce Momento",
+      "h1": "Keke de vainilla",
+      "indexacion": "index,follow",
+      "imagenes": 7,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/productos/keke-red-velvet",
+      "title": "Keke red velvet | Dulce Momento",
+      "h1": "Keke red velvet",
+      "indexacion": "index,follow",
+      "imagenes": 7,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/productos/keke-zanahoria",
+      "title": "Keke de zanahoria | Dulce Momento",
+      "h1": "Keke de zanahoria",
+      "indexacion": "index,follow",
+      "imagenes": 7,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/productos/keke-fresa",
+      "title": "Keke de fresa | Dulce Momento",
+      "h1": "Keke de fresa",
+      "indexacion": "index,follow",
+      "imagenes": 7,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/productos/keke-chocolate-y-fudge",
+      "title": "Keke de chocolate y fudge | Dulce Momento",
+      "h1": "Keke de chocolate y fudge",
+      "indexacion": "index,follow",
+      "imagenes": 7,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/productos/keke-limon",
+      "title": "Keke de limón | Dulce Momento",
+      "h1": "Keke de limón",
+      "indexacion": "index,follow",
+      "imagenes": 7,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/productos/keke-naranja",
+      "title": "Keke de naranja | Dulce Momento",
+      "h1": "Keke de naranja",
+      "indexacion": "index,follow",
+      "imagenes": 7,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/productos/keke-tres-leches",
+      "title": "Keke de tres leches | Dulce Momento",
+      "h1": "Keke de tres leches",
+      "indexacion": "index,follow",
+      "imagenes": 7,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/productos/keke-chocolate-blanco",
+      "title": "Keke de chocolate blanco | Dulce Momento",
+      "h1": "Keke de chocolate blanco",
+      "indexacion": "index,follow",
+      "imagenes": 7,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/productos/keke-frutos-rojos",
+      "title": "Keke de frutos rojos | Dulce Momento",
+      "h1": "Keke de frutos rojos",
+      "indexacion": "index,follow",
+      "imagenes": 7,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/productos/keke-personalizado",
+      "title": "Keke personalizado | Dulce Momento",
+      "h1": "Keke personalizado",
+      "indexacion": "index,follow",
+      "imagenes": 7,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/productos/keke-mini-chocolate",
+      "title": "Mini keke de chocolate | Dulce Momento",
+      "h1": "Mini keke de chocolate",
+      "indexacion": "index,follow",
+      "imagenes": 7,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/productos/keke-mini-vainilla",
+      "title": "Mini keke de vainilla | Dulce Momento",
+      "h1": "Mini keke de vainilla",
+      "indexacion": "index,follow",
+      "imagenes": 7,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/productos/keke-especial-para-cumpleanos",
+      "title": "Keke para cumpleaños | Dulce Momento",
+      "h1": "Keke para cumpleaños",
+      "indexacion": "index,follow",
+      "imagenes": 7,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/productos/keke-especial-para-aniversario",
+      "title": "Keke para aniversario | Dulce Momento",
+      "h1": "Keke para aniversario",
+      "indexacion": "index,follow",
+      "imagenes": 7,
+      "resultado": "PASS"
+    }
+  ]
+}

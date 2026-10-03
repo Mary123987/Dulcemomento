@@ -1,0 +1,5 @@
+# Demostración local. No enviar este sitemap de localhost a buscadores.
+# Noindex se declara en el HTML de las páginas internas; no se bloquea su lectura.
+User-agent: *
+Allow: /
+Sitemap: http://127.0.0.1:4173/sitemap.xml

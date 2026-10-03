@@ -1,0 +1,355 @@
+{
+  "routes": [
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/",
+      "description": "Descubre Dulce Momento: kekes artesanales en Lima, sabores para celebrar y opciones de personalización. Explora nuestra tienda de demostración.",
+      "h1": [
+        "Kekes artesanales en Lima para cada momento."
+      ],
+      "missingAlt": 0,
+      "path": "/",
+      "robots": "index,follow",
+      "title": "Kekes artesanales en Lima | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/catalogo",
+      "description": "Explora 16 kekes artesanales de demostración: chocolate, vainilla, frutales y celebraciones. Filtra por ocasión y compara tamaños y precios referenciales.",
+      "h1": [
+        "Catálogo de kekes artesanales."
+      ],
+      "missingAlt": 0,
+      "path": "/catalogo",
+      "robots": "index,follow",
+      "title": "Catálogo de kekes artesanales | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/personalizados",
+      "description": "Describe el tema, color, sabor y dedicatoria de tu keke. Prueba el formulario de diseño personalizado de Dulce Momento; la solicitud es una simulación.",
+      "h1": [
+        "Diseño de kekes personalizados a tu manera"
+      ],
+      "missingAlt": 0,
+      "path": "/personalizados",
+      "robots": "index,follow",
+      "title": "Diseño de kekes personalizados | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/nosotros",
+      "description": "Conoce la propuesta de Dulce Momento: repostería artesanal, personalización y momentos para compartir. Una tienda de demostración centrada en kekes.",
+      "h1": [
+        "Dulce Momento: repostería artesanal con dedicación"
+      ],
+      "missingAlt": 0,
+      "path": "/nosotros",
+      "robots": "index,follow",
+      "title": "Dulce Momento: repostería artesanal | Nosotros"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/contacto",
+      "description": "Contacta con Dulce Momento por WhatsApp o correo. Prueba el formulario de consulta de demostración y encuentra nuestras redes como Dulcemomento.",
+      "h1": [
+        "Contacto Dulce Momento: cuéntanos tu consulta"
+      ],
+      "missingAlt": 0,
+      "path": "/contacto",
+      "robots": "index,follow",
+      "title": "Contacto Dulce Momento | Consultas y WhatsApp"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/ayuda",
+      "description": "Consulta cómo probar el delivery por distrito en Lima, el recojo, los plazos y los métodos de pago simulados de la tienda Dulce Momento.",
+      "h1": [
+        "Delivery y recojo de kekes: guía de tu pedido"
+      ],
+      "missingAlt": 0,
+      "path": "/ayuda",
+      "robots": "index,follow",
+      "title": "Delivery y recojo de kekes | Ayuda Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/carrito",
+      "description": "Revisa los kekes, tamaños, dedicatorias y cantidades de tu carrito. Aplica un cupón y continúa al checkout de demostración de Dulce Momento.",
+      "h1": [
+        "Tu carrito de compras"
+      ],
+      "missingAlt": 0,
+      "path": "/carrito",
+      "robots": "noindex,follow",
+      "title": "Carrito de compras | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/checkout",
+      "description": "Completa los datos de prueba, selecciona entrega o recojo y simula el pago de tu pedido de Dulce Momento. Esta página no procesa cobros reales.",
+      "h1": [
+        "Finaliza tu pedido"
+      ],
+      "missingAlt": 0,
+      "path": "/checkout",
+      "robots": "noindex,follow",
+      "title": "Finalizar pedido | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/pedido-confirmado",
+      "description": "Consulta el número, entrega, productos y total de tu pedido simulado de Dulce Momento, guardado únicamente en este dispositivo.",
+      "h1": [
+        "Confirmación de tu pedido"
+      ],
+      "missingAlt": 0,
+      "path": "/pedido-confirmado",
+      "robots": "noindex,follow",
+      "title": "Confirmación de pedido | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/favoritos",
+      "description": "Revisa los kekes que marcaste como favoritos en este navegador y vuelve a sus fichas para personalizarlos. No necesitas crear una cuenta.",
+      "h1": [
+        "Tus kekes favoritos"
+      ],
+      "missingAlt": 0,
+      "path": "/favoritos",
+      "robots": "noindex,follow",
+      "title": "Tus kekes favoritos | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/terminos",
+      "description": "Lee el alcance de la tienda de demostración de Dulce Momento: productos referenciales, compras simuladas y ausencia de cobros o despachos reales.",
+      "h1": [
+        "Términos de la demostración"
+      ],
+      "missingAlt": 0,
+      "path": "/terminos",
+      "robots": "noindex,follow",
+      "title": "Términos de la demostración | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/privacidad",
+      "description": "Conoce qué datos conserva esta demostración de Dulce Momento en tu navegador y cómo eliminarlos. No se guardan números de tarjeta ni CVV.",
+      "h1": [
+        "Privacidad de tus datos"
+      ],
+      "missingAlt": 0,
+      "path": "/privacidad",
+      "robots": "noindex,follow",
+      "title": "Privacidad de tus datos | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/productos/keke-chocolate",
+      "description": "Explora el keke de chocolate de Dulce Momento. Elige tamaño, decoración y dedicatoria, y revisa su precio referencial en nuestra tienda de demostración.",
+      "h1": [
+        "Keke de chocolate"
+      ],
+      "missingAlt": 0,
+      "path": "/productos/keke-chocolate",
+      "robots": "index,follow",
+      "title": "Keke de chocolate | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/productos/keke-vainilla",
+      "description": "Explora el keke de vainilla de Dulce Momento. Elige tamaño, decoración y dedicatoria, y revisa su precio referencial en nuestra tienda de demostración.",
+      "h1": [
+        "Keke de vainilla"
+      ],
+      "missingAlt": 0,
+      "path": "/productos/keke-vainilla",
+      "robots": "index,follow",
+      "title": "Keke de vainilla | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/productos/keke-red-velvet",
+      "description": "Explora el keke red velvet de Dulce Momento. Elige tamaño, decoración y dedicatoria, y revisa su precio referencial en nuestra tienda de demostración.",
+      "h1": [
+        "Keke red velvet"
+      ],
+      "missingAlt": 0,
+      "path": "/productos/keke-red-velvet",
+      "robots": "index,follow",
+      "title": "Keke red velvet | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/productos/keke-zanahoria",
+      "description": "Explora el keke de zanahoria de Dulce Momento. Elige tamaño, decoración y dedicatoria, y revisa su precio referencial en nuestra tienda de demostración.",
+      "h1": [
+        "Keke de zanahoria"
+      ],
+      "missingAlt": 0,
+      "path": "/productos/keke-zanahoria",
+      "robots": "index,follow",
+      "title": "Keke de zanahoria | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/productos/keke-fresa",
+      "description": "Explora el keke de fresa de Dulce Momento. Elige tamaño, decoración y dedicatoria, y revisa su precio referencial en nuestra tienda de demostración.",
+      "h1": [
+        "Keke de fresa"
+      ],
+      "missingAlt": 0,
+      "path": "/productos/keke-fresa",
+      "robots": "index,follow",
+      "title": "Keke de fresa | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/productos/keke-chocolate-y-fudge",
+      "description": "Explora el keke de chocolate y fudge de Dulce Momento. Elige tamaño, decoración y dedicatoria, y revisa su precio referencial en nuestra tienda de demostración.",
+      "h1": [
+        "Keke de chocolate y fudge"
+      ],
+      "missingAlt": 0,
+      "path": "/productos/keke-chocolate-y-fudge",
+      "robots": "index,follow",
+      "title": "Keke de chocolate y fudge | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/productos/keke-limon",
+      "description": "Explora el keke de limón de Dulce Momento. Elige tamaño, decoración y dedicatoria, y revisa su precio referencial en nuestra tienda de demostración.",
+      "h1": [
+        "Keke de limón"
+      ],
+      "missingAlt": 0,
+      "path": "/productos/keke-limon",
+      "robots": "index,follow",
+      "title": "Keke de limón | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/productos/keke-naranja",
+      "description": "Explora el keke de naranja de Dulce Momento. Elige tamaño, decoración y dedicatoria, y revisa su precio referencial en nuestra tienda de demostración.",
+      "h1": [
+        "Keke de naranja"
+      ],
+      "missingAlt": 0,
+      "path": "/productos/keke-naranja",
+      "robots": "index,follow",
+      "title": "Keke de naranja | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/productos/keke-tres-leches",
+      "description": "Explora el keke de tres leches de Dulce Momento. Elige tamaño, decoración y dedicatoria, y revisa su precio referencial en nuestra tienda de demostración.",
+      "h1": [
+        "Keke de tres leches"
+      ],
+      "missingAlt": 0,
+      "path": "/productos/keke-tres-leches",
+      "robots": "index,follow",
+      "title": "Keke de tres leches | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/productos/keke-chocolate-blanco",
+      "description": "Explora el keke de chocolate blanco de Dulce Momento. Elige tamaño, decoración y dedicatoria, y revisa su precio referencial en nuestra tienda de demostración.",
+      "h1": [
+        "Keke de chocolate blanco"
+      ],
+      "missingAlt": 0,
+      "path": "/productos/keke-chocolate-blanco",
+      "robots": "index,follow",
+      "title": "Keke de chocolate blanco | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/productos/keke-frutos-rojos",
+      "description": "Explora el keke de frutos rojos de Dulce Momento. Elige tamaño, decoración y dedicatoria, y revisa su precio referencial en nuestra tienda de demostración.",
+      "h1": [
+        "Keke de frutos rojos"
+      ],
+      "missingAlt": 0,
+      "path": "/productos/keke-frutos-rojos",
+      "robots": "index,follow",
+      "title": "Keke de frutos rojos | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/productos/keke-personalizado",
+      "description": "Configura tu keke personalizado: tamaño, sabor, decoración y dedicatoria. Revisa el importe referencial y añádelo al carrito de demostración.",
+      "h1": [
+        "Keke personalizado"
+      ],
+      "missingAlt": 0,
+      "path": "/productos/keke-personalizado",
+      "robots": "index,follow",
+      "title": "Keke personalizado | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/productos/keke-mini-chocolate",
+      "description": "Explora el mini keke de chocolate de Dulce Momento. Elige tamaño, decoración y dedicatoria, y revisa su precio referencial en nuestra tienda de demostración.",
+      "h1": [
+        "Mini keke de chocolate"
+      ],
+      "missingAlt": 0,
+      "path": "/productos/keke-mini-chocolate",
+      "robots": "index,follow",
+      "title": "Mini keke de chocolate | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/productos/keke-mini-vainilla",
+      "description": "Explora el mini keke de vainilla de Dulce Momento. Elige tamaño, decoración y dedicatoria, y revisa su precio referencial en nuestra tienda de demostración.",
+      "h1": [
+        "Mini keke de vainilla"
+      ],
+      "missingAlt": 0,
+      "path": "/productos/keke-mini-vainilla",
+      "robots": "index,follow",
+      "title": "Mini keke de vainilla | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/productos/keke-especial-para-cumpleanos",
+      "description": "Explora el keke para cumpleaños de Dulce Momento. Elige tamaño, decoración y dedicatoria, y revisa su precio referencial en nuestra tienda de demostración.",
+      "h1": [
+        "Keke para cumpleaños"
+      ],
+      "missingAlt": 0,
+      "path": "/productos/keke-especial-para-cumpleanos",
+      "robots": "index,follow",
+      "title": "Keke para cumpleaños | Dulce Momento"
+    },
+    {
+      "brokenLoadedImages": 0,
+      "canonical": "http://127.0.0.1:4173/productos/keke-especial-para-aniversario",
+      "description": "Explora el keke para aniversario de Dulce Momento. Elige tamaño, decoración y dedicatoria, y revisa su precio referencial en nuestra tienda de demostración.",
+      "h1": [
+        "Keke para aniversario"
+      ],
+      "missingAlt": 0,
+      "path": "/productos/keke-especial-para-aniversario",
+      "robots": "index,follow",
+      "title": "Keke para aniversario | Dulce Momento"
+    }
+  ],
+  "console": [],
+  "mobile": {
+    "width": 390,
+    "horizontalOverflow": false,
+    "menuWorks": true
+  },
+  "functional": {
+    "checkoutTotal": 189,
+    "coupon": "DULCE10",
+    "subtotal": 190,
+    "shipping": 18,
+    "assistantCart": true,
+    "cartPersistsReload": true,
+    "searchAndFavorites": true
+  }
+}
