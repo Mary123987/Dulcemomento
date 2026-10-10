@@ -1,4 +1,4 @@
-import {localMode,localRequest,localAuthenticated} from './local-admin.js';
+import {localMode,localRequest,localAuthenticated,presentationAccess} from './local-admin.js';
 import {mergeContacts,directory,purchaseStats,eligibleRecipients,recordInquiry,inactivityDays} from './crm.js';
 import {BASE_PATH} from './seo.js';
 import {marketingPeople,campaignAudience} from './marketing.js';
@@ -148,6 +148,8 @@ function shell(path,content){
  </style><section class="dm-admin-layout"><aside class="dm-admin-sidebar"><div class="dm-admin-brand"><strong>Dulce Momento</strong><small>Panel administrativo · ${esc(section.label)}</small></div>${nav(path)}</aside><div class="dm-admin-content"><header class="dm-admin-heading"><div><span class="eyebrow">ADMINISTRACIÓN</span><h1>${esc(section.label)}</h1></div><button type="button" class="dm-admin-button" data-panel-action="logout">Cerrar sesión</button></header>${content}</div></section>`;
 }
 function authView(config){
+ const access=globalThis.DM_PRESENTATION_ACCESS||presentationAccess;
+ const accessCard=localMode()?`<aside aria-label="Credenciales de presentación" style="margin-top:1.25rem;padding:1rem;border:1px solid var(--line,#e7dfd3);border-radius:12px;background:var(--bg,#fcf9f3);overflow-wrap:anywhere"><strong>Acceso para la presentación</strong><p style="margin:.6rem 0 .3rem">Usuario: <code>${esc(access.username)}</code></p><p style="margin:0">Contraseña: <code>${esc(access.password)}</code></p></aside>`:'';
  return `<style>
  .dm-admin-auth-stage{min-height:100vh;min-height:100svh;display:grid;place-items:center;padding:1rem;background:var(--bg,#fcf9f3);color:var(--ink,#493329);font-family:var(--sans,Arial,sans-serif)}
  .dm-admin-auth{box-sizing:border-box;width:min(420px,100%);min-width:0;margin:0;padding:clamp(1.25rem,5vw,2rem);background:var(--paper,#fffdf9);border:1px solid var(--line,#e7dfd3);border-radius:22px;box-shadow:0 18px 42px rgba(73,51,41,.08)}
@@ -163,7 +165,7 @@ function authView(config){
  .dm-admin-auth #panel-message{min-width:0;overflow-wrap:anywhere}
  .dm-admin-auth #panel-message .dm-admin-message{margin:.8rem 0 0;padding:.75rem;border-radius:10px;background:#fff1de;color:#704f28}
  .dm-admin-auth #panel-message .dm-admin-message.error{background:#fff0ed;color:#8e302c}
- </style><div class="dm-admin-auth-stage"><section class="dm-admin-auth"><span class="eyebrow">DULCE MOMENTO · ADMINISTRACIÓN</span><h1>Panel administrativo</h1><p class="dm-admin-security-note">${localMode()?'Acceso de presentación. Los datos se guardan solo en este navegador; este acceso no es seguridad de producción.':'Ingresa con las credenciales configuradas en el servidor.'}</p><form id="panel-login-form" class="dm-admin-form"><div class="dm-admin-field full"><label for="panel-username">Usuario</label><input id="panel-username" class="dm-admin-input" name="username" required autocomplete="username"></div><div class="dm-admin-field full"><label for="panel-password">Contraseña</label><input id="panel-password" class="dm-admin-input" type="password" name="password" required autocomplete="current-password"></div><button class="dm-admin-button primary" type="submit">Ingresar</button></form><div id="panel-message" aria-live="polite"></div></section></div>`;
+ </style><div class="dm-admin-auth-stage"><section class="dm-admin-auth"><span class="eyebrow">DULCE MOMENTO · ADMINISTRACIÓN</span><h1>Panel administrativo</h1><p class="dm-admin-security-note">${localMode()?'Acceso de presentación. Los datos se guardan solo en este navegador; este acceso no es seguridad de producción.':'Ingresa con las credenciales configuradas en el servidor.'}</p><form id="panel-login-form" class="dm-admin-form"><div class="dm-admin-field full"><label for="panel-username">Usuario</label><input id="panel-username" class="dm-admin-input" name="username" required autocomplete="username"></div><div class="dm-admin-field full"><label for="panel-password">Contraseña</label><input id="panel-password" class="dm-admin-input" type="password" name="password" required autocomplete="current-password"></div><button class="dm-admin-button primary" type="submit">Ingresar</button></form>${accessCard}<div id="panel-message" aria-live="polite"></div></section></div>`;
 }
 function summaryView(){
  const contacts=contactRecords();
