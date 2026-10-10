@@ -26,6 +26,15 @@ page('/privacidad','Privacidad','privacidad de datos Dulce Momento','Privacidad 
  return page('/productos/'+p.slug,p.name,keyword,p.name,`${p.name} | Dulce Momento`,description,'Ficha de producto','Consultar y configurar este producto específico antes de agregarlo al carrito.',true,[[keyword,'Transaccional','Alta','Alta','Identifica exactamente el producto de esta ficha; la compra disponible es simulada.'],[special?'precio de keke personalizado':keyword+' artesanal','Comercial','Alta','Media',special?'La ficha muestra importes y modificadores referenciales; no sustituye la consulta de diseño libre.':'Añade el atributo artesanal de la marca; se conserva como variante secundaria.'],[special?'diseño de kekes personalizados':'receta de '+keyword,'Informacional',special?'Media':'Baja','Baja',special?'Corresponde al formulario de diseño de /personalizados; no debe duplicar su objetivo.':'La página no enseña una receta ni cantidades de ingredientes. Se descarta por intención distinta.']],special?'El singular representa una unidad configurable con precio y carrito. Se diferencia del servicio de diseño libre en /personalizados.':'Corresponde al sabor o la ocasión de un único producto. El modificador específico lo diferencia del catálogo y de los otros kekes.');
 })];
 export function normalizePath(path){return path.replace(/\/+$/,'')||'/'}
+const adminPages=[
+ ['/admin','Resumen'],
+ ['/admin/contactos','Contactos'],
+ ['/admin/clientes','Clientes'],
+ ['/admin/campanas','Campañas'],
+ ['/admin/pedidos','Pedidos'],
+ ['/admin/configuracion','Configuración']
+].map(([path,name])=>page(path,`Administración · ${name}`,`panel administrativo ${name.toLowerCase()}`,'Iniciar sesión',`${name} | Panel administrativo Dulce Momento`,`Panel administrativo privado de Dulce Momento: ${name.toLowerCase()}.`,'Administración','Gestionar datos locales de contacto, clientes, campañas y pedidos.',false,[],`Ruta administrativa privada; no indexar ${path}.`));
+pages.push(...adminPages);
 export const pageFor=path=>pages.find(p=>p.path===normalizePath(path))||{path:normalizePath(path),name:'Página no encontrada',h1:'Página no encontrada',title:'Página no encontrada | Dulce Momento',description:'La página solicitada no existe. Regresa al catálogo de kekes de Dulce Momento.',indexable:false,type:'Error'};
 export function structuredData(meta){
  if(!meta.indexable)return null;

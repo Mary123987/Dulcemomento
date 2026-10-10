@@ -25,4 +25,4 @@ const sitemap=fs.readFileSync('dist/sitemap.xml','utf8');assert.equal((sitemap.m
 assert.ok(fs.readFileSync('dist/robots.txt','utf8').includes('Allow: /'));
 assert.ok(fs.readFileSync('dist/404.html','utf8').includes('noindex,follow'));
 fs.mkdirSync('../outputs',{recursive:true});fs.writeFileSync('../outputs/verificacion-seo.json',JSON.stringify({fecha:'2026-10-03',paginas:rows.length,sitemap:22,results:rows},null,2));
-console.log('PASS: 28 rutas, titles/descripciones/objetivos únicos, H1, canonical, robots, OG/Twitter, alternativas de imágenes, enlaces/anclas, JSON-LD y sitemap de 22 URLs.');
+console.log(`PASS: ${pages.length} rutas, titles/descripciones/objetivos únicos, H1, canonical, robots, OG/Twitter, alternativas de imágenes, enlaces/anclas, JSON-LD y sitemap de 22 URLs.`);

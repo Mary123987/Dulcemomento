@@ -15,4 +15,4 @@ for(const path of ['/catalogo/','/catalogo/index.html']){const r=await fetch(SEO
 const filtered=await (await fetch(SEO_ORIGIN+'/catalogo?ocasion=Cumplea%C3%B1os')).text();assert.ok(filtered.includes('rel="canonical" href="'+SEO_ORIGIN+'/catalogo"'));
 for(const file of ['robots.txt','sitemap.xml'])assert.equal((await fetch(SEO_ORIGIN+'/'+file)).status,200);
 fs.writeFileSync('../outputs/verificacion-http.json',JSON.stringify({routes:results,missingRoutes:404,normalization:308,queryCanonical:true},null,2));
-console.log('HTTP: 28 rutas con HTML inicial correcto; 404, redirecciones, canonical, robots y sitemap verificados.');
+console.log(`HTTP: ${pages.length} rutas con HTML inicial correcto; 404, redirecciones, canonical, robots y sitemap verificados.`);

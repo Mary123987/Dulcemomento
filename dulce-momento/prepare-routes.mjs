@@ -1,7 +1,13 @@
 import fs from 'node:fs';
 import {pages,BASE_PATH,SEO_ORIGIN,siteUrl,pageFor,seoHead,escapeHtml} from './dist/seo.js';
 import {renderStatic} from './dist/app.js';
-const shell=fs.readFileSync('shell.html','utf8').replace(/<title>[\s\S]*?<\/title>/,'').replace(/<meta name="description"[^>]*>/,'').replace('<head>','<head><base href="'+(BASE_PATH?BASE_PATH+'/':'/')+'"><meta name="site-base" content="'+escapeHtml(BASE_PATH)+'"><meta name="site-origin" content="'+escapeHtml(SEO_ORIGIN)+'">');
+const configuredApiOrigin=String(process.env.DM_ADMIN_API_URL||'').trim();
+if(configuredApiOrigin){
+ const apiUrl=new URL(configuredApiOrigin);
+ if(!['http:','https:'].includes(apiUrl.protocol)||apiUrl.pathname!=='/'||apiUrl.search||apiUrl.hash||(apiUrl.protocol!=='https:'&&!['localhost','127.0.0.1'].includes(apiUrl.hostname)))throw new Error('DM_ADMIN_API_URL debe ser el origen HTTPS del backend (HTTP solo se permite en localhost).');
+}
+const apiMeta=configuredApiOrigin?'<meta name="admin-api-origin" content="'+escapeHtml(configuredApiOrigin.replace(/\/$/,''))+'">':'';
+const shell=fs.readFileSync('shell.html','utf8').replace(/<title>[\s\S]*?<\/title>/,'').replace(/<meta name="description"[^>]*>/,'').replace('<head>','<head><base href="'+(BASE_PATH?BASE_PATH+'/':'/')+'"><meta name="site-base" content="'+escapeHtml(BASE_PATH)+'"><meta name="site-origin" content="'+escapeHtml(SEO_ORIGIN)+'">'+apiMeta);
 function documentFor(meta){return shell.replace('</head>',seoHead(meta)+'</head>').replace('<div id="app"></div>','<div id="app">'+renderStatic(meta.path)+'</div>')}
 for(const meta of pages){const dir=meta.path==='/'?'dist':'dist'+meta.path;fs.mkdirSync(dir,{recursive:true});fs.writeFileSync(dir+'/index.html',documentFor(meta))}
 fs.writeFileSync('dist/404.html',documentFor(pageFor('/404')));
