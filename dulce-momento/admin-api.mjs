@@ -1,6 +1,9 @@
+import {initializeMarketing,marketingPeople,campaignAudience,marketingMetrics,processInternalCampaign} from './dist/marketing.js';
+import {mergeContacts,recordInquiry,directory,purchaseStats,eligibleRecipients,inactivityDays} from './dist/crm.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import './env.mjs';
 
 const DATA_FILE=path.resolve(process.env.ADMIN_DATA_FILE||'data/admin-data.json');
 const sessions=new Map();
@@ -8,7 +11,6 @@ const loginAttempts=new Map();
 const activeCampaignSends=new Set();
 const activeTestSends=new Set();
 let dataWriteLock=Promise.resolve();
-const ADMIN_EMAIL='maryrojascordova20@gmail.com';
 const REQUESTED_FROM='maryrojascordova20@gmail.com';
 const DEMO_CUSTOMERS=[
  {id:'demo-ana-torres',name:'Ana Torres',email:'ana.torres@example.com',registeredAt:'2026-01-10T10:00:00.000Z',status:'activo',segment:'nuevo',marketingConsent:false,consentDate:null,consentSource:null,campaignHistory:[],isDemo:true},
@@ -34,12 +36,15 @@ const isDemoEmail=email=>/@(?:[^@]+\.)?example\.com$/i.test(email);
 const safeError=error=>String(error?.message||error||'Error interno').slice(0,500);
 
 function seedData(){
- return {customers:DEMO_CUSTOMERS,campaigns:DEMO_CAMPAIGNS,sendHistory:[],unsubscribedEmails:[]};
+ return initializeMarketing({contacts:[],orders:[],settings:{inactivityDays:180},customers:DEMO_CUSTOMERS.map(person=>({...person,segment:'consulta'})),campaigns:structuredClone(DEMO_CAMPAIGNS),sendHistory:[],unsubscribedEmails:[]});
 }
 async function readData(){
  try{
   const data=JSON.parse(await fs.readFile(DATA_FILE,'utf8'));
-  return {customers:Array.isArray(data.customers)?data.customers:[],campaigns:Array.isArray(data.campaigns)?data.campaigns:[],sendHistory:Array.isArray(data.sendHistory)?data.sendHistory:[],unsubscribedEmails:Array.isArray(data.unsubscribedEmails)?data.unsubscribedEmails:[]};
+  const normalized={marketingVersion:data.marketingVersion,referenceOrders:data.referenceOrders||[],deletedCustomerEmails:data.deletedCustomerEmails||[],contacts:mergeContacts(Array.isArray(data.contacts)?data.contacts:[]),orders:Array.isArray(data.orders)?data.orders:[],settings:{inactivityDays:inactivityDays(data.settings?.inactivityDays)},customers:Array.isArray(data.customers)?data.customers:[],campaigns:Array.isArray(data.campaigns)?data.campaigns:[],sendHistory:Array.isArray(data.sendHistory)?data.sendHistory:[],unsubscribedEmails:Array.isArray(data.unsubscribedEmails)?data.unsubscribedEmails:[]};
+  normalized.customers=directory(normalized.customers,normalized.contacts,normalized.orders,normalized.settings.inactivityDays).filter(person=>!normalized.deletedCustomerEmails.includes(normalizeEmail(person.email)));
+  const migration=normalized.marketingVersion!==2;initializeMarketing(normalized);if(migration)await writeData(normalized);
+  return normalized;
  }catch(error){
   if(error.code!=='ENOENT')throw error;
   const data=seedData();
@@ -116,24 +121,30 @@ async function bodyJson(req){
   data+=chunk;
   if(data.length>1_000_000)throw Object.assign(new Error('Solicitud demasiado grande.'),{status:413});
  }
- async function bodyForm(req){
-  let data='';
-  for await(const chunk of req){
-   data+=chunk;
-   if(data.length>10000)throw Object.assign(new Error('Solicitud demasiado grande.'),{status:413});
-  }
-  return new URLSearchParams(data);
- }
  try{
   const value=JSON.parse(data||'{}');
   if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('Se esperaba un objeto JSON.');
   return value;
  }catch{throw Object.assign(new Error('JSON inválido: se esperaba un objeto.'),{status:400});}
 }
-function adminConfigured(){
- return Boolean(process.env.ADMIN_USERNAME&&process.env.ADMIN_PASSWORD?.length>=12&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(process.env.ADMIN_EMAIL||'')&&process.env.SESSION_SECRET?.length>=32);
+async function bodyForm(req){let value='';for await(const chunk of req){value+=chunk;if(value.length>10000)throw Object.assign(Error('Solicitud demasiado grande.'),{status:413});}return new URLSearchParams(value);}
+function adminConfigurationError(){
+ const missing=[];
+ if(!process.env.ADMIN_USERNAME?.trim())missing.push('ADMIN_USERNAME');
+ if(!process.env.ADMIN_PASSWORD||process.env.ADMIN_PASSWORD.length<8)missing.push('ADMIN_PASSWORD (mínimo 8 caracteres)');
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(process.env.ADMIN_EMAIL||''))missing.push('ADMIN_EMAIL (correo válido)');
+ if(!process.env.SESSION_SECRET||process.env.SESSION_SECRET.length<32)missing.push('SESSION_SECRET (mínimo 32 caracteres)');
+ return missing.length?`Configura estas variables del servidor: ${missing.join(', ')}.`:null;
 }
+function adminConfigured(){
+ return adminConfigurationError()===null;
+}
+export function adminConfigurationStatus(){
+ return adminConfigurationError();
+}
+const externalEnabled=()=>process.env.EXTERNAL_EMAIL_ENABLED==='true';
 async function resendDomains(){
+ if(!externalEnabled())return {configured:false,verified:false,reason:'El transporte externo no está habilitado.'};
  if(!process.env.RESEND_API_KEY)return {configured:false,verified:false,reason:'Falta RESEND_API_KEY.'};
  const response=await fetch('https://api.resend.com/domains',{headers:{Authorization:`Bearer ${process.env.RESEND_API_KEY}`},signal:AbortSignal.timeout(10000)});
  const result=await response.json().catch(()=>({}));
@@ -144,7 +155,8 @@ async function resendDomains(){
  return {configured:Boolean(matching&&matching.status==='verified'),verified:Boolean(matching&&matching.status==='verified'),reason:matching?.status==='verified'?null:`El dominio ${domain||'(remitente inválido)'} no aparece como verificado en Resend.`,fromEmail,domainStatus:matching?.status||'not_found'};
 }
 function requireAdmin(req,res){
- if(!adminConfigured()){json(res,503,{error:'Backend administrativo no configurado. Define ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL y SESSION_SECRET en el entorno del servidor.'});return false;}
+ const configurationError=adminConfigurationError();
+ if(configurationError){json(res,503,{error:`Backend administrativo no configurado. ${configurationError}`});return false;}
  if(!originAllowed(req)){json(res,403,{error:'Origen no autorizado.'});return false;}
  if(!getSession(req)){json(res,401,{error:'Sesión de administración requerida.'});return false;}
  return true;
@@ -166,20 +178,19 @@ function expiredCookie(req){
  return `dm_admin_session=; Path=/api; HttpOnly; SameSite=${crossSite?'None':'Strict'}; Max-Age=0${secure?'; Secure':''}`;
 }
 function validCustomer(customer){
- return customer&&typeof customer==='object'&&String(customer.name||'').trim().length>=2&&String(customer.name).length<=120&&String(customer.email||'').length<=254&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeEmail(customer.email))&&['activo','inactivo'].includes(customer.status)&&['nuevo','recurrente','inactivo'].includes(customer.segment)&&(!customer.registeredAt||Number.isFinite(Date.parse(customer.registeredAt)))&&(!customer.marketingConsent||(Number.isFinite(Date.parse(customer.consentDate))&&String(customer.consentSource||'').trim().length>=2&&String(customer.consentSource).length<=200));
+ return customer&&typeof customer==='object'&&String(customer.name||'').trim().length>=2&&String(customer.name).length<=120&&String(customer.email||'').length<=254&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeEmail(customer.email))&&['activo','inactivo'].includes(customer.status)&&(!customer.registeredAt||Number.isFinite(Date.parse(customer.registeredAt)))&&(!customer.marketingConsent||(Number.isFinite(Date.parse(customer.consentDate))&&String(customer.consentSource||'').trim().length>=2&&String(customer.consentSource).length<=200));
 }
 function validCampaign(campaign){
- return campaign&&typeof campaign==='object'&&String(campaign.name||'').trim().length>0&&String(campaign.name).length<=120&&String(campaign.subject||'').trim().length>0&&String(campaign.subject).length<=160&&String(campaign.html||'').trim().length>0&&String(campaign.html).length<=100000&&String(campaign.text||'').trim().length>0&&String(campaign.text).length<=100000&&['nuevo','recurrente','inactivo','todos_consentidos'].includes(campaign.segment);
+ return campaign&&typeof campaign==='object'&&String(campaign.name||'').trim().length>0&&String(campaign.name).length<=120&&String(campaign.subject||'').trim().length>0&&String(campaign.subject).length<=160&&String(campaign.html||'').trim().length>0&&String(campaign.html).length<=100000&&String(campaign.text||'').trim().length>0&&String(campaign.text).length<=100000&&['nuevo','recurrente','inactivo','consulta','todos_consentidos'].includes(campaign.segment);
 }
-function eligibleCustomers(data,campaign){
- return data.customers.filter(customer=>!customer.isDemo&&!isDemoEmail(customer.email)&&customer.status==='activo'&&customer.marketingConsent===true&&!customer.unsubscribed&&data.unsubscribedEmails.includes(normalizeEmail(customer.email))===false&&(campaign.segment==='todos_consentidos'||customer.segment===campaign.segment));
-}
+function eligibleCustomers(data,campaign){return eligibleRecipients(data,campaign);}
 async function providerSend({to,subject,html,text,replyTo,idempotencyKey,readiness:knownReadiness}){
+ if(!externalEnabled())throw Object.assign(new Error('El transporte externo no está habilitado.'),{code:'PROVIDER_NOT_READY'});
  const readiness=knownReadiness||await resendDomains();
  if(!readiness.configured)throw Object.assign(new Error(readiness.reason||'Resend no está configurado.'),{code:'PROVIDER_NOT_READY'});
  const fromEmail=normalizeEmail(process.env.RESEND_FROM_EMAIL||REQUESTED_FROM);
  const fromName=String(process.env.RESEND_FROM_NAME||'Dulce Momento').replace(/[\r\n<>]/g,'').slice(0,100);
- const replyAddress=normalizeEmail(replyTo||process.env.RESEND_REPLY_TO||ADMIN_EMAIL);
+ const replyAddress=normalizeEmail(replyTo||process.env.RESEND_REPLY_TO||process.env.ADMIN_EMAIL);
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(replyAddress))throw Object.assign(new Error('RESEND_REPLY_TO debe contener un correo válido.'),{code:'INVALID_CONFIGURATION'});
  const response=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${process.env.RESEND_API_KEY}`,'Content-Type':'application/json','Idempotency-Key':idempotencyKey},body:JSON.stringify({from:`${fromName} <${fromEmail}>`,to:[to],subject,html,text,reply_to:replyAddress}),signal:AbortSignal.timeout(10000)});
  const result=await response.json().catch(()=>({}));
@@ -214,7 +225,7 @@ async function handleUnsubscribe(req,res,url){
  let email;try{email=normalizeEmail(Buffer.from(encoded,'base64url').toString())}catch{text(res,400,'Enlace de cancelación inválido.');return;}
  const data=await readData();
  if(!data.unsubscribedEmails.includes(email))data.unsubscribedEmails.push(email);
- data.customers=data.customers.map(customer=>normalizeEmail(customer.email)===email?{...customer,marketingConsent:false,consentDate:new Date().toISOString(),consentSource:'unsubscribe-link',unsubscribed:true}:customer);
+ data.customers=data.customers.map(customer=>normalizeEmail(customer.email)===email?{...customer,marketingConsent:false,consentDate:null,consentSource:null,unsubscribedAt:new Date().toISOString(),unsubscribed:true}:customer);
  await writeData(data);
  text(res,200,'La suscripción comercial de este correo fue cancelada.');
 }
@@ -226,18 +237,24 @@ export async function handleAdminApi(req,res,url){
  try{
   if(!corsHeaders(req,res)){json(res,403,{error:'Origen no autorizado.'});return;}
   if(req.method==='OPTIONS'){res.writeHead(204);res.end();return;}
+  if(req.method==='GET'&&url.pathname==='/api/admin/data')releaseDataLock=await acquireDataLock();
   const writesData=req.method==='POST'||req.method==='PUT'||req.method==='DELETE';
-  if(writesData&&(url.pathname==='/api/unsubscribe'||url.pathname.startsWith('/api/admin/customers')||url.pathname.startsWith('/api/admin/campaigns')||url.pathname==='/api/admin/test-email'||url.pathname==='/api/admin/send-campaign'))releaseDataLock=await acquireDataLock();
+  if(writesData&&(url.pathname==='/api/contacts'||url.pathname.startsWith('/api/admin/contacts')||url.pathname==='/api/admin/settings'||url.pathname.startsWith('/api/admin/orders/')||url.pathname==='/api/unsubscribe'||url.pathname.startsWith('/api/admin/customers')||url.pathname.startsWith('/api/admin/campaigns')||url.pathname==='/api/admin/test-email'||url.pathname==='/api/admin/send-campaign'))releaseDataLock=await acquireDataLock();
   if(url.pathname==='/api/email/status'&&req.method==='GET'){
    const provider=getSession(req)?await resendDomains().catch(error=>({configured:false,verified:false,reason:`No se pudo consultar Resend: ${safeError(error)}`})):{configured:false,verified:false,reason:process.env.RESEND_API_KEY?'Inicia sesión para consultar el estado de Resend.':'Falta RESEND_API_KEY.'};
-   json(res,200,{backendAvailable:true,backendConfigured:adminConfigured(),providerConfigured:provider.configured,senderVerified:provider.verified,senderEmail:provider.fromEmail||normalizeEmail(process.env.RESEND_FROM_EMAIL||REQUESTED_FROM),replyTo:process.env.RESEND_REPLY_TO||ADMIN_EMAIL,requestedSender:REQUESTED_FROM,domainStatus:provider.domainStatus||'not_checked',reason:provider.reason||null,mode:provider.configured?'real-capable':'demo',apiKeyConfigured:Boolean(process.env.RESEND_API_KEY)});
+   json(res,200,{backendAvailable:true,backendConfigured:adminConfigured(),configurationError:adminConfigurationError(),providerConfigured:provider.configured,senderVerified:provider.verified,senderEmail:provider.fromEmail||normalizeEmail(process.env.RESEND_FROM_EMAIL||REQUESTED_FROM),replyTo:process.env.RESEND_REPLY_TO||process.env.ADMIN_EMAIL||'',requestedSender:REQUESTED_FROM,domainStatus:provider.domainStatus||'not_checked',reason:provider.reason||null,externalEnabled:externalEnabled(),mode:provider.configured?'external':'internal',apiKeyConfigured:Boolean(process.env.RESEND_API_KEY)});
    return;
   }
   if(url.pathname==='/api/unsubscribe'&&(req.method==='GET'||req.method==='POST')){await handleUnsubscribe(req,res,url);return;}
+  if(url.pathname==='/api/contacts'&&req.method==='POST'){
+   if(!adminConfigured()){json(res,503,{error:'Servicio de contacto no configurado.'});return;}
+   const input=await bodyJson(req);const data=await readData();recordInquiry(data,input);await writeData(data);json(res,201,{received:true});return;
+  }
   if(!url.pathname.startsWith('/api/admin/')){json(res,404,{error:'Endpoint no encontrado.'});return;}
   if(!originAllowed(req)){json(res,403,{error:'Origen no autorizado.'});return;}
   if(url.pathname==='/api/admin/login'&&req.method==='POST'){
-   if(!adminConfigured()){json(res,503,{error:'Backend administrativo no configurado.'});return;}
+   const configurationError=adminConfigurationError();
+   if(configurationError){json(res,503,{error:`Backend administrativo no configurado. ${configurationError}`});return;}
    const ip=req.socket.remoteAddress||'unknown';const attempts=loginAttempts.get(ip)||{count:0,until:0};
    if(attempts.until>Date.now()){json(res,429,{error:'Demasiados intentos. Espera cinco minutos.'});return;}
    const data=await bodyJson(req);
@@ -257,35 +274,56 @@ export async function handleAdminApi(req,res,url){
    json(res,200,{loggedOut:true});return;
   }
   if(!requireAdmin(req,res))return;
-  if(url.pathname==='/api/admin/data'&&req.method==='GET'){json(res,200,await readData());return;}
-  if(url.pathname==='/api/admin/customers'&&req.method==='POST'){
-   const customer=await bodyJson(req);const data=await readData();
-   if(!validCustomer(customer)){json(res,400,{error:'Datos de cliente inválidos. Para activar consentimiento registra su fecha y fuente.'});return;}
-   const email=normalizeEmail(customer.email);
-   const demo=isDemoEmail(email);
-   if(demo&&customer.marketingConsent){json(res,400,{error:'Los correos example.com son demostrativos y no pueden tener consentimiento comercial.'});return;}
-   if(data.customers.some(item=>normalizeEmail(item.email)===email)){json(res,409,{error:'Ya existe un cliente con este correo.'});return;}
-   const now=new Date().toISOString();const stored={id:crypto.randomUUID(),name:String(customer.name).trim(),email,registeredAt:customer.registeredAt||now,status:customer.status,segment:customer.segment,campaignHistory:[],isDemo:demo,unsubscribed:false,marketingConsent:demo?false:Boolean(customer.marketingConsent),consentDate:demo?null:customer.marketingConsent?customer.consentDate:null,consentSource:demo?null:customer.marketingConsent?String(customer.consentSource).trim():null};
-   data.customers.push(stored);await writeData(data);json(res,201,{customer:stored});return;
+  if(url.pathname==='/api/admin/data'&&req.method==='GET'){const data=await readData();json(res,200,{...data,marketing:{people:marketingPeople(data),metrics:marketingMetrics(data)}});return;}
+  if(url.pathname==='/api/admin/settings'&&req.method==='PUT'){
+   const input=await bodyJson(req);if(!Number.isInteger(input.inactivityDays)||input.inactivityDays<1||input.inactivityDays>3650){json(res,400,{error:'El plazo debe ser de 1 a 3650 días.'});return;}
+   const data=await readData();data.settings={inactivityDays:input.inactivityDays};await writeData(data);json(res,200,data.settings);return;
   }
+  if(url.pathname==='/api/admin/contacts'&&req.method==='POST'){
+   const input=await bodyJson(req);const data=await readData();
+   const existing=data.contacts.find(item=>item.id===input.id);
+   if(existing&&normalizeEmail(input.email)!==normalizeEmail(existing.email)){json(res,400,{error:'El correo vinculado al historial no puede modificarse.'});return;}
+   const contact=recordInquiry(data,{...input,surname:input.surname||'Sin apellido',marketingConsent:false});
+   contact.status=['Nueva','Pendiente','Atendida','En seguimiento'].includes(input.status)?input.status:'Nueva';
+   await writeData(data);json(res,200,{contact});return;
+  }
+  const orderMatch=url.pathname.match(/^\/api\/admin\/orders\/([^/]+)$/);
+  if(orderMatch&&req.method==='PUT'){
+   const input=await bodyJson(req);const data=await readData();const order=data.orders.find(item=>item.orderId===decodeURIComponent(orderMatch[1]));
+   if(!order){json(res,404,{error:'Pedido no encontrado.'});return;}
+   if(!['Pedido recibido','Pago confirmado','En preparación','Listo','En camino','Entregado'].includes(input.status)){json(res,400,{error:'Estado inválido.'});return;}
+   order.status=input.status;order.lastUpdatedAt=new Date().toISOString();await writeData(data);json(res,200,{order});return;
+  }
+  const contactMatch=url.pathname.match(/^\/api\/admin\/contacts\/([^/]+)$/);
+  if(contactMatch&&req.method==='DELETE'){const data=await readData();data.contacts=data.contacts.filter(item=>item.id!==decodeURIComponent(contactMatch[1]));await writeData(data);json(res,200,{deleted:true});return;}
   const customerMatch=url.pathname.match(/^\/api\/admin\/customers\/([^/]+)$/);
-  if(customerMatch){
-   const id=decodeURIComponent(customerMatch[1]);const data=await readData();const index=data.customers.findIndex(customer=>customer.id===id);
-   if(index<0){json(res,404,{error:'Cliente no encontrado.'});return;}
-   if(req.method==='PUT'){
-    const incoming=await bodyJson(req);const existing=data.customers[index];
-    if(!validCustomer({...existing,...incoming})){json(res,400,{error:'Datos de cliente inválidos. Para activar consentimiento registra su fecha y fuente.'});return;}
-    if(existing.isDemo&&incoming.marketingConsent){json(res,400,{error:'Los clientes ficticios no pueden registrar consentimiento comercial.'});return;}
-    const email=normalizeEmail(incoming.email);
-    if(isDemoEmail(email)!==Boolean(existing.isDemo)){json(res,400,{error:'Los correos example.com solo pueden pertenecer a registros de demostración.'});return;}
-    if(data.customers.some(customer=>customer.id!==id&&normalizeEmail(customer.email)===email)){json(res,409,{error:'Ya existe otro cliente con este correo.'});return;}
-    const consent=existing.isDemo?false:Boolean(incoming.marketingConsent);
-    data.customers[index]={...existing,name:String(incoming.name).trim(),email,registeredAt:incoming.registeredAt||existing.registeredAt,status:incoming.status,segment:incoming.segment,marketingConsent:consent,consentDate:consent?(incoming.consentDate||existing.consentDate):null,consentSource:consent?String(incoming.consentSource||existing.consentSource).trim():null};
-    await writeData(data);json(res,200,{customer:data.customers[index]});return;
-   }
+  if((url.pathname==='/api/admin/customers'&&req.method==='POST')||customerMatch){
+   const data=await readData();const id=customerMatch?decodeURIComponent(customerMatch[1]):null;
+   const old=id?data.customers.find(person=>person.id===id):null;
+   if(id&&!old){json(res,404,{error:'Cliente no encontrado.'});return;}
    if(req.method==='DELETE'){
-    data.customers.splice(index,1);await writeData(data);json(res,200,{deleted:true});return;
+    data.deletedCustomerEmails=[...new Set([...data.deletedCustomerEmails,normalizeEmail(old.email)])];
+    data.customers=data.customers.filter(person=>person.id!==id);await writeData(data);json(res,200,{deleted:true});return;
    }
+   if(!['POST','PUT'].includes(req.method)){json(res,405,{error:'Método no permitido.'});return;}
+   const input=await bodyJson(req);const email=normalizeEmail(input.email);const sample=old?old.isDemo===true:isDemoEmail(email);
+   if(old&&sample!==isDemoEmail(email)){json(res,400,{error:'El dominio de correo no es compatible con esta ficha.'});return;}
+   if(!validCustomer({...input,marketingConsent:sample?false:input.marketingConsent})){json(res,400,{error:'Revisa nombre, correo, estado y evidencia del consentimiento.'});return;}
+   if(data.customers.some(person=>person.id!==id&&normalizeEmail(person.email)===email)){json(res,409,{error:'Ya existe un cliente con este correo.'});return;}
+   const changed=old&&normalizeEmail(old.email)!==email;
+   const unsubscribed=Boolean(old?.unsubscribed||data.unsubscribedEmails.includes(email)||input.unsubscribed===true);
+   if(unsubscribed)data.unsubscribedEmails=[...new Set([...data.unsubscribedEmails,email])];
+   const consent=!sample&&!changed&&!unsubscribed&&input.marketingConsent===true;
+   const stored={...old,id:id||crypto.randomUUID(),name:String(input.name).trim(),email,status:input.status,registeredAt:old?.registeredAt||input.registeredAt||new Date().toISOString(),isDemo:sample,marketingConsent:consent,consentDate:consent?input.consentDate:null,consentSource:consent?String(input.consentSource).trim():null,unsubscribed,campaignHistory:old?.campaignHistory||[]};
+   if(sample)stored.eligibilityProfile={consent:input.marketingConsent===true,unsubscribed:Boolean(old?.eligibilityProfile?.unsubscribed||input.unsubscribed===true)};
+   if(changed){
+    for(const order of [...data.orders,...data.referenceOrders])if(normalizeEmail(order.customer?.email)===normalizeEmail(old.email))order.customer.email=email;
+    for(const contact of data.contacts)if(normalizeEmail(contact.email)===normalizeEmail(old.email)){contact.email=email;contact.marketingConsent=false;contact.consentDate=null;contact.consentSource=null;}
+    if(unsubscribed)data.unsubscribedEmails=[...new Set([...data.unsubscribedEmails,email])];
+   }
+   data.deletedCustomerEmails=data.deletedCustomerEmails.filter(address=>address!==email);
+   data.customers=old?data.customers.map(person=>person.id===id?stored:person):[...data.customers,stored];
+   await writeData(data);json(res,old?200:201,{customer:{...stored,...purchaseStats(email,data.orders,data.settings.inactivityDays)}});return;
   }
   if(url.pathname==='/api/admin/campaigns'&&req.method==='POST'){
    const campaign=await bodyJson(req);const data=await readData();
@@ -298,6 +336,7 @@ export async function handleAdminApi(req,res,url){
    const id=decodeURIComponent(campaignMatch[1]);const data=await readData();const index=data.campaigns.findIndex(campaign=>campaign.id===id);
    if(index<0){json(res,404,{error:'Campaña no encontrada.'});return;}
    if(req.method==='PUT'){
+    if(['procesada','procesada_con_errores','processing','enviado_al_proveedor'].includes(data.campaigns[index].status)){json(res,409,{error:'Duplica la campaña para preparar una nueva versión.'});return;}
     const update=await bodyJson(req);
     if(!validCampaign(update)){json(res,400,{error:'Campaña inválida: nombre, asunto, contenido HTML, texto alternativo y segmento válidos son obligatorios.'});return;}
     data.campaigns[index]={...data.campaigns[index],name:String(update.name).trim(),subject:String(update.subject).trim(),html:String(update.html),text:String(update.text),segment:update.segment,updatedAt:new Date().toISOString()};await writeData(data);json(res,200,{campaign:data.campaigns[index]});return;
@@ -309,19 +348,19 @@ export async function handleAdminApi(req,res,url){
   }
   if(url.pathname==='/api/admin/test-email'&&req.method==='POST'){
    const data=await bodyJson(req);const recipient=normalizeEmail(process.env.ADMIN_EMAIL);
-   const allowed=normalizeEmail(data.to)===recipient&&recipient===ADMIN_EMAIL;
-   if(!allowed){json(res,403,{error:'El envío de prueba se limita al correo autorizado de administración.'});return;}
+   const allowed=normalizeEmail(data.to)===recipient;
+   if(!allowed){json(res,403,{error:'La vista previa se limita al correo autorizado de administración.'});return;}
    const idempotencyKey=String(data.idempotencyKey||`test/${crypto.randomUUID()}`);
    if(idempotencyKey.length<8||idempotencyKey.length>120){json(res,400,{error:'Clave de idempotencia inválida.'});return;}
    const previous=(await readData()).sendHistory.find(item=>item.idempotencyKey===idempotencyKey);
-   if(previous){json(res,409,{error:'Esta prueba ya fue procesada.',result:previous});return;}
-   if(activeTestSends.has(idempotencyKey)){json(res,409,{error:'Esta prueba ya está en curso.'});return;}
+   if(previous){json(res,409,{error:'Esta operación ya fue procesada.',result:previous});return;}
+   if(activeTestSends.has(idempotencyKey)){json(res,409,{error:'Esta operación ya está en curso.'});return;}
    activeTestSends.add(idempotencyKey);activeTestKey=idempotencyKey;
    const record={id:crypto.randomUUID(),idempotencyKey,type:'test',campaignId:String(data.campaignId||''),recipient,subject:String(data.subject||'Prueba | Dulce Momento').slice(0,160),requestedAt:new Date().toISOString(),status:'processing',providerId:null,error:null};
    await storeTestResult(record);
    let sendError=null;
    try{
-    const sent=await providerSend({to:recipient,subject:record.subject,html:String(data.html||'<p>Correo de prueba de Dulce Momento.</p>').slice(0,100000),text:String(data.text||'Correo de prueba de Dulce Momento.').slice(0,100000),replyTo:process.env.RESEND_REPLY_TO||ADMIN_EMAIL,idempotencyKey});
+    const sent=await providerSend({to:recipient,subject:record.subject,html:String(data.html||'<p>Correo de prueba de Dulce Momento.</p>').slice(0,100000),text:String(data.text||'Correo de prueba de Dulce Momento.').slice(0,100000),replyTo:process.env.RESEND_REPLY_TO||recipient,idempotencyKey});
     record.status='accepted_by_provider';record.providerId=sent.id;
    }catch(error){record.status='failed';record.error=safeError(error);sendError=error;}
    record.finishedAt=new Date().toISOString();
@@ -334,21 +373,32 @@ export async function handleAdminApi(req,res,url){
   if(url.pathname==='/api/admin/send-campaign'&&req.method==='POST'){
    const request=await bodyJson(req);const data=await readData();const campaign=data.campaigns.find(item=>item.id===request.campaignId);
    if(!campaign){json(res,404,{error:'Campaña no encontrada.'});return;}
-   if(campaign.isDemo){json(res,403,{error:'Duplica la plantilla como campaña real antes de habilitar el envío.'});return;}
+   if(request.transport!=='external'){
+    if(request.confirmed!==true){json(res,400,{error:'Confirma el procesamiento de la campaña.'});return;}
+    if(typeof request.idempotencyKey!=='string'||request.idempotencyKey.length<8||request.idempotencyKey.length>120){json(res,400,{error:'Falta una clave de operación válida.'});return;}
+    const prior=data.sendHistory.find(run=>run.idempotencyKey===request.idempotencyKey);
+    if(prior){json(res,409,{error:'Esta operación ya fue registrada.',run:prior});return;}
+    if(['procesada','procesada_con_errores','processing','enviado_al_proveedor'].includes(campaign.status)){json(res,409,{error:'Esta campaña ya fue procesada. Duplica el borrador para una nueva operación.'});return;}
+    if(!validCampaign(campaign)){json(res,400,{error:'Completa nombre, asunto, HTML, texto alternativo y segmento antes de procesar.'});return;}
+    const run=processInternalCampaign(data,campaign,{id:crypto.randomUUID(),key:request.idempotencyKey});
+    await writeData(data);json(res,200,{run,metrics:marketingMetrics(data)});return;
+   }
+   if(!externalEnabled()){json(res,403,{error:'El transporte externo no está habilitado.'});return;}
+   if(campaign.isDemo){json(res,403,{error:'Duplica la plantilla antes de utilizar el transporte externo.'});return;}
    if(request.confirmed!==true){json(res,400,{error:'Se requiere confirmación explícita antes del envío.'});return;}
-   if(!data.sendHistory.some(item=>item.type==='test'&&item.status==='accepted_by_provider')){json(res,403,{error:'Antes de un envío a clientes, completa una prueba aceptada por Resend al correo autorizado de administración.'});return;}
+   if(!data.sendHistory.some(item=>item.type==='test'&&item.status==='accepted_by_provider')){json(res,403,{error:'Primero verifica la vista previa en el correo de administración.'});return;}
    if(activeCampaignSends.has(campaign.id)){json(res,409,{error:'Ya hay un envío de esta campaña en curso.'});return;}
    if(typeof request.idempotencyKey!=='string'||request.idempotencyKey.length<8||request.idempotencyKey.length>120){json(res,400,{error:'Falta una clave de idempotencia válida.'});return;}
    const prior=data.sendHistory.find(item=>item.idempotencyKey===request.idempotencyKey);
    if(prior){json(res,409,{error:'Esta solicitud ya fue procesada.',result:prior});return;}
-   if(campaign.status==='enviado_al_proveedor'||campaign.status==='processing'){json(res,409,{error:'Esta campaña ya inició un envío. Duplica el borrador para evitar reenvíos accidentales.'});return;}
+   if(['enviado_al_proveedor','processing','procesada','procesada_con_errores'].includes(campaign.status)){json(res,409,{error:'Esta campaña ya inició un envío. Duplica el borrador para evitar reenvíos accidentales.'});return;}
    const recipients=eligibleCustomers(data,campaign);
    if(!recipients.length){json(res,400,{error:'No hay destinatarios reales activos con consentimiento para ese segmento.'});return;}
    const providerStatus=await resendDomains();
    if(!providerStatus.configured){json(res,503,{error:providerStatus.reason||'Resend no está preparado para enviar.'});return;}
    activeCampaignSends.add(campaign.id);
    activeSendId=campaign.id;
-   const run={id:crypto.randomUUID(),campaignId:campaign.id,idempotencyKey:request.idempotencyKey,startedAt:new Date().toISOString(),recipientCount:recipients.length,status:'processing',results:[]};
+   const run={id:crypto.randomUUID(),type:'campaign',transport:'external',campaignId:campaign.id,idempotencyKey:request.idempotencyKey,startedAt:new Date().toISOString(),recipientCount:recipients.length,status:'processing',results:[]};
    campaign.status='processing';
    data.sendHistory.unshift(run);await writeData(data);
    for(const customer of recipients){
@@ -357,9 +407,10 @@ export async function handleAdminApi(req,res,url){
      const token=unsubscribeToken(customer.email);
      const base=process.env.PUBLIC_API_URL||`http://${req.headers.host}`;
      const unsubscribeUrl=`${base}/api/unsubscribe?token=${encodeURIComponent(token)}`;
-     const sent=await providerSend({to:customer.email,subject:campaign.subject,html:campaignHtml(campaign,unsubscribeUrl),text:`${campaign.text}\n\nCancelar suscripción: ${unsubscribeUrl}`,replyTo:process.env.RESEND_REPLY_TO||ADMIN_EMAIL,idempotencyKey:`${campaign.id}/${run.id}/${customer.id}`,readiness:providerStatus});
+     const sent=await providerSend({to:customer.email,subject:campaign.subject,html:campaignHtml(campaign,unsubscribeUrl),text:`${campaign.text}\n\nCancelar suscripción: ${unsubscribeUrl}`,replyTo:process.env.RESEND_REPLY_TO||process.env.ADMIN_EMAIL,idempotencyKey:`${campaign.id}/${run.id}/${customer.id}`,readiness:providerStatus});
      entry.status='accepted_by_provider';entry.providerId=sent.id;
-     customer.campaignHistory=[...(customer.campaignHistory||[]),{campaignId:campaign.id,acceptedAt:entry.attemptedAt,status:entry.status,providerId:sent.id}];
+     const storedCustomer=data.customers.find(item=>normalizeEmail(item.email)===customer.email);
+     if(storedCustomer)storedCustomer.campaignHistory=[...(storedCustomer.campaignHistory||[]),{campaignId:campaign.id,acceptedAt:entry.attemptedAt,status:entry.status,providerId:sent.id}];
     }catch(error){entry.error=safeError(error);}
     run.results.push(entry);await writeData(data);
    }

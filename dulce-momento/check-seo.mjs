@@ -10,7 +10,8 @@ for(const p of pages){
  assert.ok(html.includes('<meta name="site-base" content="'+BASE_PATH+'">'),p.path+' base metadata');
  assert.equal((html.match(/<h1>/g)||[]).length,1,p.path+' H1');
  assert.equal((html.match(/<title>/g)||[]).length,1,p.path+' title');
- assert.ok(html.includes(p.h1)||p.path==='/'||p.path==='/catalogo',p.path+' H1 previsto');
+ if(p.path==='/admin'||p.path.startsWith('/admin/'))assert.ok(html.includes('id="panel-login-form"'),p.path+' acceso protegido');
+ else assert.ok(html.includes(p.h1)||p.path==='/'||p.path==='/catalogo',p.path+' H1 previsto');
  assert.ok(html.includes('<title>'+p.title+'</title>'),p.path+' title');
  assert.ok(html.includes('content="'+(p.indexable?'index,follow':'noindex,follow')+'"'),p.path+' robots');
  assert.ok(html.includes('href="'+siteUrl(p.path)+'"'),p.path+' canonical');

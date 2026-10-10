@@ -139,6 +139,36 @@
       "path": "/productos/keke-especial-para-aniversario",
       "status": 200,
       "initialHtml": true
+    },
+    {
+      "path": "/admin",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/admin/contactos",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/admin/clientes",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/admin/campanas",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/admin/pedidos",
+      "status": 200,
+      "initialHtml": true
+    },
+    {
+      "path": "/admin/configuracion",
+      "status": 200,
+      "initialHtml": true
     }
   ],
   "missingRoutes": 404,

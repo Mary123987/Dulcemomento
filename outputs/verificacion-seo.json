@@ -1,6 +1,6 @@
 {
   "fecha": "2026-10-03",
-  "paginas": 28,
+  "paginas": 34,
   "sitemap": 22,
   "results": [
     {
@@ -70,7 +70,7 @@
     {
       "ruta": "/pedido-confirmado",
       "title": "Confirmación de pedido | Dulce Momento",
-      "h1": "Confirmación de tu pedido",
+      "h1": "¡Gracias por elegirnos!",
       "indexacion": "noindex,follow",
       "imagenes": 0,
       "resultado": "PASS"
@@ -85,8 +85,8 @@
     },
     {
       "ruta": "/terminos",
-      "title": "Términos de la demostración | Dulce Momento",
-      "h1": "Términos de la demostración",
+      "title": "Términos y condiciones | Dulce Momento",
+      "h1": "Términos y condiciones",
       "indexacion": "noindex,follow",
       "imagenes": 0,
       "resultado": "PASS"
@@ -225,6 +225,54 @@
       "h1": "Keke para aniversario",
       "indexacion": "index,follow",
       "imagenes": 7,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/admin",
+      "title": "Resumen | Panel administrativo Dulce Momento",
+      "h1": "Iniciar sesión",
+      "indexacion": "noindex,follow",
+      "imagenes": 0,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/admin/contactos",
+      "title": "Contactos | Panel administrativo Dulce Momento",
+      "h1": "Iniciar sesión",
+      "indexacion": "noindex,follow",
+      "imagenes": 0,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/admin/clientes",
+      "title": "Clientes | Panel administrativo Dulce Momento",
+      "h1": "Iniciar sesión",
+      "indexacion": "noindex,follow",
+      "imagenes": 0,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/admin/campanas",
+      "title": "Campañas | Panel administrativo Dulce Momento",
+      "h1": "Iniciar sesión",
+      "indexacion": "noindex,follow",
+      "imagenes": 0,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/admin/pedidos",
+      "title": "Pedidos | Panel administrativo Dulce Momento",
+      "h1": "Iniciar sesión",
+      "indexacion": "noindex,follow",
+      "imagenes": 0,
+      "resultado": "PASS"
+    },
+    {
+      "ruta": "/admin/configuracion",
+      "title": "Configuración | Panel administrativo Dulce Momento",
+      "h1": "Iniciar sesión",
+      "indexacion": "noindex,follow",
+      "imagenes": 0,
       "resultado": "PASS"
     }
   ]
