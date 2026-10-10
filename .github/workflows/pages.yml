@@ -29,11 +29,13 @@ jobs:
         env:
           BASE_PATH: /Dulcemomento
           SEO_ORIGIN: https://mary123987.github.io
-          DM_ADMIN_API_URL: ${{ vars.DM_ADMIN_API_URL }}
+          # Presentation deployment: no backend. Restore vars.DM_ADMIN_API_URL when ready.
+          DM_ADMIN_API_URL: ''
         run: |
           node prepare-routes.mjs
           node --check dist/app.js
           node check.mjs
+          node check-local-admin.mjs
           node check-seo.mjs
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

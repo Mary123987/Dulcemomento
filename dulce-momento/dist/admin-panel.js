@@ -1,3 +1,4 @@
+import {localMode,localRequest,localAuthenticated} from './local-admin.js';
 import {mergeContacts,directory,purchaseStats,eligibleRecipients,recordInquiry,inactivityDays} from './crm.js';
 import {BASE_PATH} from './seo.js';
 import {marketingPeople,campaignAudience} from './marketing.js';
@@ -162,7 +163,7 @@ function authView(config){
  .dm-admin-auth #panel-message{min-width:0;overflow-wrap:anywhere}
  .dm-admin-auth #panel-message .dm-admin-message{margin:.8rem 0 0;padding:.75rem;border-radius:10px;background:#fff1de;color:#704f28}
  .dm-admin-auth #panel-message .dm-admin-message.error{background:#fff0ed;color:#8e302c}
- </style><div class="dm-admin-auth-stage"><section class="dm-admin-auth"><span class="eyebrow">DULCE MOMENTO · ADMINISTRACIÓN</span><h1>Panel administrativo</h1><p class="dm-admin-security-note">Ingresa con las credenciales seguras configuradas en el servidor.</p><form id="panel-login-form" class="dm-admin-form"><div class="dm-admin-field full"><label for="panel-username">Usuario</label><input id="panel-username" class="dm-admin-input" name="username" required autocomplete="username"></div><div class="dm-admin-field full"><label for="panel-password">Contraseña</label><input id="panel-password" class="dm-admin-input" type="password" name="password" required autocomplete="current-password"></div><button class="dm-admin-button primary" type="submit">Ingresar</button></form><div id="panel-message" aria-live="polite"></div></section></div>`;
+ </style><div class="dm-admin-auth-stage"><section class="dm-admin-auth"><span class="eyebrow">DULCE MOMENTO · ADMINISTRACIÓN</span><h1>Panel administrativo</h1><p class="dm-admin-security-note">${localMode()?'Acceso de presentación. Los datos se guardan solo en este navegador; este acceso no es seguridad de producción.':'Ingresa con las credenciales configuradas en el servidor.'}</p><form id="panel-login-form" class="dm-admin-form"><div class="dm-admin-field full"><label for="panel-username">Usuario</label><input id="panel-username" class="dm-admin-input" name="username" required autocomplete="username"></div><div class="dm-admin-field full"><label for="panel-password">Contraseña</label><input id="panel-password" class="dm-admin-input" type="password" name="password" required autocomplete="current-password"></div><button class="dm-admin-button primary" type="submit">Ingresar</button></form><div id="panel-message" aria-live="polite"></div></section></div>`;
 }
 function summaryView(){
  const contacts=contactRecords();
@@ -206,6 +207,7 @@ function ordersView(){
  return `<section class="dm-admin-card"><h2>${apiState.mode?'Pedidos registrados en el servidor':'Pedidos guardados en este navegador'}</h2><div class="dm-admin-table-wrap"><table class="dm-admin-table"><thead><tr><th>Número</th><th>Cliente</th><th>Fecha</th><th>Total</th><th>Pago</th><th>Estado</th><th>Actualizar</th></tr></thead><tbody>${orders.map(order=>`<tr><td>${esc(order.orderId)}</td><td>${esc(order.customer?.name)}<br><small>${esc(order.customer?.email)}</small></td><td>${esc(order.createdAt||'—')}</td><td>${money(order.total)}</td><td>${esc(order.paymentMethod)} · ${esc(order.payment?.status)}</td><td><span class="dm-admin-tag ${statusClass(order.status)}">${esc(order.status||'Pedido recibido')}</span></td><td><select class="dm-admin-select" data-panel-order-status="${esc(order.orderId)}">${ORDER_STATUSES.map(status=>`<option ${order.status===status?'selected':''}>${status}</option>`).join('')}</select></td></tr>`).join('')||'<tr><td colspan="7" class="dm-admin-muted">No se han guardado pedidos en este navegador.</td></tr>'}</tbody></table></div><div id="panel-message" aria-live="polite"></div></section>`;
 }
 function settingsView(){
+ if(localMode())return `<div class="dm-admin-grid"><section class="dm-admin-card"><h2>Almacenamiento local</h2><p>Los cambios se guardan en este navegador. No se sincronizan con un servidor y se pierden si borras los datos del sitio. El acceso de presentación no protege información confidencial.</p><p>Las credenciales públicas se configuran en local-admin.js. No uses contraseñas reales.</p></section><section class="dm-admin-card"><h2>Inactividad de compradores</h2><form id="panel-inactivity-form"><input class="dm-admin-input" name="inactivityDays" type="number" min="1" max="3650" required value="${inactivityDays(crmData().settings?.inactivityDays)}"><button class="dm-admin-button primary">Guardar plazo</button></form><div id="panel-message" aria-live="polite"></div></section></div>`;
  const config=readConfig();
  const credentialForm=apiState.mode?'<p class="dm-admin-security-note">La cuenta del backend se gestiona mediante ADMIN_USERNAME y ADMIN_PASSWORD en el entorno seguro del servidor; no se almacena ni modifica desde este navegador.</p>':`<form id="panel-password-form" class="dm-admin-form"><div class="dm-admin-field full"><label>Contraseña actual</label><input class="dm-admin-input" type="password" name="currentPassword" required autocomplete="current-password"></div><div class="dm-admin-field"><label>Nueva contraseña (mínimo 12 caracteres)</label><input class="dm-admin-input" type="password" name="newPassword" minlength="12" required autocomplete="new-password"></div><div class="dm-admin-field"><label>Confirmar contraseña</label><input class="dm-admin-input" type="password" name="confirmation" minlength="12" required autocomplete="new-password"></div><button class="dm-admin-button primary" type="submit">Actualizar contraseña local</button></form>`;
  const storageNote=apiState.mode?'Contactos, clientes, campañas y pedidos registrados del backend se consultan en el servidor.':'Los datos se guardan en este navegador.';
@@ -222,6 +224,7 @@ function viewFor(path){
 }
 const apiBase=()=>String(globalThis.DM_ADMIN_API_URL||document.querySelector('meta[name="admin-api-origin"]')?.content||'').replace(/\/$/,'');
 async function apiRequest(endpoint,options={}){
+ if(localMode())return localRequest(endpoint,options);
  const response=await fetch(`${apiBase()}${endpoint}`,{credentials:'include',...options,headers:{...(options.body?{'Content-Type':'application/json'}:{}),...(options.headers||{})}});
  const result=await response.json().catch(()=>({}));
  if(!response.ok)throw new Error(result.error||`El servidor respondió HTTP ${response.status}.`);
@@ -293,18 +296,19 @@ async function deleteCustomer(id){
 async function deleteCampaign(id){
  if(apiState.mode){
   if(!window.confirm('¿Eliminar esta campaña? Se conservarán las campañas con historial de envío.'))return;
-  try{await apiRequest(`/api/admin/campaigns/${encodeURIComponent(id)}`,{method:'DELETE'});await loadApiState();showMessage('Campaña eliminada del servidor.');refreshAdmin();}
+  try{await apiRequest(`/api/admin/campaigns/${encodeURIComponent(id)}`,{method:'DELETE'});await loadApiState();showMessage('Campaña eliminada.');refreshAdmin();}
   catch(error){showMessage(error.message,'error');}
   return;
  }
  deleteById(KEYS.campaigns,id,'esta campaña');
 }
 export function renderAdmin(path='/admin'){
- const serverSession=readSession()?.backend===true;
+ const serverSession=localMode()?localAuthenticated():readSession()?.backend===true;
  if(serverSession&&!apiState.mode){
   apiState.mode=true;
   if(!apiState.data)void loadApiState().then(refreshAdmin).catch(error=>{sessionStorage.removeItem(KEYS.session);apiState.mode=false;showMessage(error.message,'error');refreshAdmin();});
  }
+ if(localMode()&&!localAuthenticated())return authView(readConfig());
  if(!apiState.mode&&(!readSession()?.backend||!isAuthenticated()))return authView(readConfig());
  if(path==='/admin/contactos')contactsPage=0;
  return shell(path,viewFor(path));
@@ -451,6 +455,7 @@ async function updateOrderStatus(orderId,status){
 }
 async function login(form){
  const data=Object.fromEntries(new FormData(form));
+ if(localMode()){try{await apiRequest('/api/admin/login',{method:'POST',body:JSON.stringify(data)});await loadApiState();apiState.mode=true;emitUpdated();}catch(error){showMessage(error.message,'error');}return;}
  let serverStatus;
  try{
   const response=await fetch(`${apiBase()}/api/email/status`,{credentials:'include'});

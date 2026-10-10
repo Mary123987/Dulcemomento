@@ -1,3 +1,4 @@
+import {localMode,saveLocalInquiry} from './local-admin.js';
 import {recordInquiry} from './crm.js';
 import {pageFor,applySeo,normalizePath,BASE_PATH} from './seo.js';
 import {products,categories,occasions,faqs,business,deliveryRates,testimonials} from './data.js';
@@ -184,6 +185,7 @@ export async function submitInquiry(form){
  const button=form.querySelector('button[type="submit"]');if(button)button.disabled=true;
  if(form.dataset)form.dataset.submitting='true';
  try{
+  if(localMode()){saveLocalInquiry(input);form.reset();result.innerHTML='<p class="notice">✓ Consulta guardada en este navegador. No se ha enviado a la tienda.</p>';return;}
   const base=String(globalThis.DM_ADMIN_API_URL||document.querySelector('meta[name="admin-api-origin"]')?.content||'').replace(/\/$/,'');
   let backend=false;
   const response=await fetch(base+'/api/email/status');
@@ -199,7 +201,7 @@ export async function submitInquiry(form){
    // The contact also contains consent evidence so a partial storage failure stays recoverable.
    setContacts(data.contacts);localStorage.setItem('dm-admin-customers',JSON.stringify(data.customers));
   }
-  form.reset();result.innerHTML='<p class="notice">✓ '+(backend?'Consulta recibida correctamente.':'Consulta guardada correctamente.')+'</p>';
+  form.reset();result.innerHTML='<p class="notice">✓ '+(backend?'Consulta recibida correctamente.':'Consulta guardada en este navegador. No se ha enviado a la tienda.')+'</p>';
  }catch(error){result.innerHTML='<p class="field-error">'+esc(error.message||'No pudimos registrar la consulta. Inténtalo nuevamente.')+'</p>';}
  finally{if(button)button.disabled=false;if(form.dataset)delete form.dataset.submitting;}
 }
