@@ -14,7 +14,7 @@ Tienda responsive de demostración, en español y soles peruanos. Sin instalaci�
 - `server.mjs` y `env.mjs`: servidor estático, API `/api` y carga de configuración desde `.env` antes de aceptar solicitudes.
 - `dist/style.css`: identidad visual, accesibilidad, móvil y animaciones.
 
-Tras cambiar rutas o textos de productos: `node prepare-routes.mjs`. Verificar: `node --check dist/app.js`, `node --check dist/admin-panel.js`, `node --check admin-api.mjs`, `node check.mjs`, `node check-admin.mjs`, `node check-admin-api.mjs`, `node check-crm.mjs`, `node check-contact-form.mjs` y `node check-seo.mjs`. `node check-admin-api.mjs` usa almacenamiento temporal y nunca llama a Resend.
+Tras cambiar rutas o textos de productos: `node prepare-routes.mjs`. Verificar: `node --check dist/app.js`, `node --check dist/analytics.js`, `node --check dist/admin-panel.js`, `node --check admin-api.mjs`, `node check.mjs`, `node check-analytics.mjs`, `node check-admin.mjs`, `node check-admin-api.mjs`, `node check-crm.mjs`, `node check-contact-form.mjs` y `node check-seo.mjs`. `node check-admin-api.mjs` usa almacenamiento temporal y nunca llama a Resend.
 
 ## Panel administrativo
 
@@ -124,3 +124,11 @@ La regla común de frontend y API cuenta pedidos únicos por orderId, ligados po
 La inactividad es independiente: al menos 180 días desde createdAt de la última compra por defecto, configurable entre 1 y 3650 en Administración → Configuración. No sustituye el segmento ni cambia el consentimiento o la habilitación manual de la ficha. Sin fecha de compra válida no se afirma inactividad.
 
 Las campañas excluyen bajas, falta de autorización y fichas desactivadas. El transporte externo añade la exclusión absoluta de datos ficticios. “Todos con consentimiento” puede incluir personas que solo consultaron y aceptaron promociones; “Nuevo”, “Recurrente” e “Inactivo” requieren compras. Las bajas guardan su propia fecha y no se reactivan al volver a enviar el formulario. No se envían correos durante las pruebas.
+
+## Google Analytics 4
+
+La plantilla compartida `shell.html` declara el ID `G-ZRBWXC7BSP` y configura Consent Mode con analítica denegada por defecto. El navegador solo descarga `gtag.js` tras aceptar; la decisión se conserva en `localStorage` y puede cambiarse desde la política de privacidad. Las rutas generadas para GitHub Pages incluyen el mismo bootstrap.
+
+Se registran `page_view` manualmente en rutas SPA, vistas y selección de artículos, búsquedas, favoritos, carrito, inicio de checkout, interacción con el asistente, intentos de formulario y clics de contacto. Los artículos usan moneda PEN. No se envían valores de formularios, mensajes, nombres, correos, teléfonos ni datos de pago. No se envía `purchase`: el flujo de pago es simulado.
+
+Para validar, abre el sitio con `?ga_debug=1`, acepta analítica y revisa DebugView/Tiempo real. Desactiva en Medición mejorada los cambios de página por historial para evitar pageviews duplicados. Los informes de ingresos requerirán pagos reales y un evento `purchase` confirmado en el servidor; no marques el evento de demostración como compra.
